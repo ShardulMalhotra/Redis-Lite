@@ -58,13 +58,13 @@ public class CommandProcessor {
                 }
 
                 case "GET": {
-                    requireArgs(tokens, 2);
+                    requireExactArgs(tokens, 2);
                     String value = store.get(tokens.get(1));
                     return value == null ? "$-1" : "$" + value;
                 }
 
                 case "DEL": {
-                    requireArgs(tokens, 2);
+                    requireExactArgs(tokens, 2);
                     boolean removed = store.del(tokens.get(1));
                     if (!replaying && removed) aof.append(rawLine);
                     return ":" + (removed ? 1 : 0);
@@ -78,13 +78,13 @@ public class CommandProcessor {
                 }
 
                 case "TTL": {
-                    requireArgs(tokens, 2);
+                    requireExactArgs(tokens, 2);
                     return ":" + store.ttl(tokens.get(1));
                 }
 
                 case "INCR":
                 case "DECR": {
-                    requireArgs(tokens, 2);
+                    requireExactArgs(tokens, 2);
                     String key = tokens.get(1);
                     long delta = cmd.equals("INCR") ? 1 : -1;
                     long result = atomicIncrement(key, delta);
@@ -131,6 +131,12 @@ public class CommandProcessor {
 
     private void requireArgs(List<String> tokens, int min) {
         if (tokens.size() < min) {
+            throw new IllegalArgumentException("wrong number of arguments for '" + tokens.get(0) + "'");
+        }
+    }
+
+    private void requireExactArgs(List<String> tokens, int exact) {
+        if (tokens.size() != exact) {
             throw new IllegalArgumentException("wrong number of arguments for '" + tokens.get(0) + "'");
         }
     }
