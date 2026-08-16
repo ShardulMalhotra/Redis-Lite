@@ -1,0 +1,11 @@
+services:
+  redis-lite:
+    build: .
+    ports:
+      - "6380:6380"
+    volumes:
+      - redislite-data:/app/data   # AOF file survives container restarts
+    restart: unless-stopped
+
+volumes:
+  redislite-data:
